@@ -10,4 +10,3 @@ sample1 = cv2.imread("./sample1_1280x720.PNG", cv2.IMREAD_UNCHANGED)
 sample2 = cv2.imread("./sample6_1280x720.PNG", cv2.IMREAD_UNCHANGED)
 error = mse(sample1,sample2)
 print(error)
-
