@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from save_pdf import save_pdf 
 from dataclasses import dataclass
 
 @dataclass
@@ -93,5 +94,7 @@ while 1:
 for i in range(len(frame_array)):
     name = "video/result"+str(i)+".png"
     cv2.imwrite(name, frame_array[i])
+
+save_pdf(frame_array)
 
 print(len(frame_array))
