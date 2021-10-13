@@ -19,7 +19,7 @@ def detect_difference(before_frame, after_frame):
 
 
 #input , output 비디오 경로.
-input_path = "video/lecture.mp4"
+input_path = "video/lecture2.mp4"
 
 #비디오를 받아옴.
 capture = cv2.VideoCapture(input_path)
