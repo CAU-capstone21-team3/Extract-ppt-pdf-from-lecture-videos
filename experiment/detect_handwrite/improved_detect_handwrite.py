@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from dataclasses import dataclass
+from save_pdf import save_pdf
 import time
 
 start = time.time()
@@ -141,11 +142,12 @@ while 1:
         #맨 끝 프레임.
         frame_array.append(prev_frame)
         break
-
+"""
 for i in range(len(frame_array)):
     name = "video/result"+str(i)+".png"
-    cv2.imwrite(name, frame_array[i])
-
+    cv2.imwrite(name, frame_array[i])"""
+del frame_array[0]
+save_pdf(frame_array)
 print(len(frame_array))
 
 end = time.time()
