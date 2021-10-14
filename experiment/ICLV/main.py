@@ -69,11 +69,36 @@ def visualize_difference(before, after):
     return temp_after
 
 
+def ssim(before, after):
+    before_gray = cv2.cvtColor(before, cv2.COLOR_BGR2GRAY)
+    after_gray = cv2.cvtColor(after, cv2.COLOR_BGR2GRAY)
+
+    (score, diff) = structural_similarity(before_gray, after_gray, full=True)
+
+    diff = (diff * 255).astype("uint8")
+
+    thresh = cv2.threshold(diff, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    contours = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = contours[0] if len(contours) == 2 else contours[1]
+
+    filled_after = after.copy()
+    count = 0
+    for c in contours:
+        area = cv2.contourArea(c)
+        if area > 40:
+            cv2.drawContours(filled_after, [c], 0, (255, 255, 0), -1)
+            count += 1
+
+    if count > 0:
+        return 1, None, filled_after
+    else:
+        return 0, None, None
+
+
 def test(input_path, output_path):
     start_time = time.time()
 
     capture = cv2.VideoCapture(input_path)
-
     frame_array = []
     ret, prev_frame = capture.read()
     height, width, layers = prev_frame.shape
@@ -103,7 +128,44 @@ def test(input_path, output_path):
     out.release()
 
     end_time = time.time()
-    print("Execution time = " + str(end_time - start_time))
+    print("Execution time (IIC) = " + str(end_time - start_time))
 
 
-test("./video/test1.mp4", "./video/output.mp4")
+def test_using_ssim(input_path, output_path):
+    start_time = time.time()
+
+    capture = cv2.VideoCapture(input_path)
+    frame_array = []
+    ret, prev_frame = capture.read()
+    height, width, layers = prev_frame.shape
+    size = (width, height)
+
+    while 1:
+        print(str(capture.get(cv2.CAP_PROP_POS_FRAMES) / capture.get(cv2.CAP_PROP_FRAME_COUNT) * 100) + "%")
+        ret, frame = capture.read()
+        if frame is not None:
+            result, block_array, temp_frame = ssim(prev_frame, frame)
+            if result == 0:
+                frame_array.append(prev_frame)
+            elif result == 1:
+                frame_array.append(temp_frame)
+                prev_frame = frame
+            elif result == 2:
+                frame_array.append(frame)
+                prev_frame = frame
+            else:
+                print("Error")
+        else:
+            break
+
+    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'avc1'), 30, size)
+    for i in range(len(frame_array)):
+        out.write(frame_array[i])
+    out.release()
+
+    end_time = time.time()
+    print("Execution time (ssim) = " + str(end_time - start_time))
+
+
+test("./video/test1.mp4", "./video/test1-output1.mp4")
+test_using_ssim("./video/test1.mp4", "./video/test1-output2.mp4")
