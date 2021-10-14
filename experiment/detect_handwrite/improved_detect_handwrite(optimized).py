@@ -3,6 +3,7 @@ import numpy as np
 from dataclasses import dataclass
 from save_pdf import save_pdf
 import time
+import copy
 
 start = time.time()
 
@@ -108,9 +109,6 @@ while 1:
             for j in range(slice):
                 if temp_diff_list[i][j] == 1 and diff_list[i][j] == 0:
                     print(temp_diff_list)
-                    print("아~")
-                    print(diff_list)
-                    print("===========")
                     removed = 1
                     break
         if removed == 0 :
@@ -120,36 +118,15 @@ while 1:
             frame_array.append(temp_write_frame)
             temp_write_frame = frame
             prev_frame = frame
-
-        temp_diff_list = [[0 for col in range(slice)]for row in range(slice)]
-
-        for i in range(slice):
-            for j in range(slice):
-                start_width = (width // slice) * i
-                start_height = (height // slice) * j
-                end_width = start_width + slice_width
-                end_height = start_height + slice_height
-
-                # 이미지 자르기 sample1[y:y+h , x:x+h] (height:height+h, width:width+h)
-                temp_image1 = temp_origin_frame[start_height:end_height, start_width:end_width].copy()
-                temp_image2 = temp_write_frame[start_height:end_height, start_width:end_width].copy()
-
-                # 원본 슬라이드 (흰색) 과 같은 부분
-                # 최신 필기본에서 원본과 다른 부분이 , 현 프레임과 원본과 같으면 안된다. (지워진거니까)
-                if detect_difference(temp_image1, temp_image2)==True:
-                    temp_diff_list[i][j] = 1
+            temp_diff_list = copy.deepcopy(diff_list)
     else:
         #맨 끝 프레임.
         frame_array.append(prev_frame)
         break
-"""
-for i in range(len(frame_array)):
-    name = "video/result"+str(i)+".png"
-    cv2.imwrite(name, frame_array[i])"""
+
 del frame_array[0]
 save_pdf(frame_array)
 print(len(frame_array))
 
-end = time.time()
-print("time!!")
-print(end-start)
+print("time: ", end=" ")
+print(time.time()-start)
