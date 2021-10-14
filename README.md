@@ -1,2 +1,2 @@
-# Extract-ppt-pdf--from-lecture-videos
+# Extract ppt(pdf) from lecture videos
 
