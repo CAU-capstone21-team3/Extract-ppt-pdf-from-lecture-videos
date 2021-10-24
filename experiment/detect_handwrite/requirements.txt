@@ -1,0 +1,6 @@
+lxml==4.6.3
+numpy==1.21.3
+opencv-python==4.5.4.58
+Pillow==8.4.0
+python-pptx==0.6.21
+XlsxWriter==3.0.1
