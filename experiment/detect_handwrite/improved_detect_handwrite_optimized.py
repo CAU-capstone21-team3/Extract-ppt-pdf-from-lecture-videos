@@ -94,7 +94,7 @@ def save_pdf_from_video(input, slice):
             # 이것도 차이가 있다고 느낀다.
 
             # 수정 3-1원본, 필기본 비교해서, 나중에 그 부분이 erase되면, 그때는 최신 필기본 저장한다.
-            erased = True
+            erased = False
 
             for i in range(slice):
                 if erased:
