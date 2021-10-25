@@ -1,6 +1,5 @@
 import cv2
 import io
-import numpy as np
 from PIL import Image
 from pptx import Presentation # 라이브러리 
 from pptx.util import Inches
@@ -13,7 +12,7 @@ def addimagetoslide(slide,img,left,top,  height, width, resize = 1.0):
     slide.shapes.add_picture(image_stream, left, top ,height, width)
     image_stream.close()
 
-def save_ppt(frame_array):
+def save_ppt(frame_array, output):
 
     prs = Presentation()
     height, width, layers = frame_array[0].shape
@@ -28,6 +27,6 @@ def save_ppt(frame_array):
         addimagetoslide(slide, image, Inches(0),Inches(0),Inches(16),Inches(16 * ratio)) 
         
 
-    prs.save('test.pptx')
+    prs.save(output)
 
 
