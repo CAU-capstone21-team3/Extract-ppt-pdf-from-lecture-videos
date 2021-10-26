@@ -30,35 +30,15 @@ def get_dif(color1, color2):
         return None
 
 
-def slice_and_visualize_difference(before, after, div):
-    height, width, layers = before.shape
-
-    block_width = width // div
-    block_height = height // div
-
-    temp_after = before.copy()
-
-    for row in range(div):
-        for col in range(div):
-            temp_image1 = before[block_height * row:block_height * (row + 1),
-                          block_width * col:block_width * (col + 1)].copy()
-            temp_image2 = after[block_height * row:block_height * (row + 1),
-                          block_width * col:block_width * (col + 1)].copy()
-            temp_after[block_height * row:block_height * (row + 1),
-                block_width * col:block_width * (col + 1)] = visualize_difference(temp_image1, temp_image2)
-
-    return temp_after
-
-
 def visualize_difference(before, after):
     height, width, layers = before.shape
 
-    temp_after = after.copy()
+    temp_after = before.copy()
 
     for row in range(height):
         for col in range(width):
-            if get_dif(before[row, col], after[row, col]) > 50:
-                temp_after[row, col] = before[row, col].copy()
+            if get_dif(before[row, col], after[row, col]) > 20:
+                temp_after[row, col] = after[row, col].copy()
             else:
                 temp_after[row, col] = [255, 255, 255]
 
@@ -176,16 +156,18 @@ def save_pdf_from_video(input, slice):
         else:
             # 맨 끝 프레임.
             frame_array.append(prev_frame)
+            final_slide_array.append(prev_frame)
             break
 
     del frame_array[0]
     save_pdf(frame_array, "video/result_pdf.pdf")
     print(len(frame_array))
 
+    final_slide_array.pop(0)
     if len(origin_slide_array) == len(final_slide_array):
         temp_array = []
-        for i in range(len(origin_slide_array) - 1):
-            temp_array.append(slice_and_visualize_difference(origin_slide_array[i], final_slide_array[i + 1], 16))
+        for i in range(len(origin_slide_array)):
+            temp_array.append(visualize_difference(origin_slide_array[i], final_slide_array[i]))
         save_pdf(temp_array, "video/detect_write_result.pdf")
 
     print("time: ", end=" ")
