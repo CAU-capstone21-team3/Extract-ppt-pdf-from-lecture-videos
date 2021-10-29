@@ -32,8 +32,7 @@ def get_dif(color1, color2):
 
 def visualize_difference(before, after):
     height, width, layers = before.shape
-
-    temp_after = before.copy()
+    temp_after = after.copy()
 
     for row in range(height):
         for col in range(width):
@@ -45,7 +44,30 @@ def visualize_difference(before, after):
     return temp_after
 
 
-def save_pdf_from_video(input, slice):
+def get_write(before, after, div):
+    height, width, layers = before.shape
+
+    block_width = width // div
+    block_height = height // div
+
+    temp_after = after.copy()
+    count = 0
+    block_array = []
+
+    for row in range(div):
+        for col in range(div):
+            temp_image1 = before[block_height * row:block_height * (row + 1),
+                          block_width * col:block_width * (col + 1)].copy()
+            temp_image2 = after[block_height * row:block_height * (row + 1),
+                          block_width * col:block_width * (col + 1)].copy()
+            if detect_difference(temp_image1, temp_image2) > 50:
+                temp_after[block_height * row:block_height * (row + 1),
+                block_width * col:block_width * (col + 1)] = visualize_difference(temp_image1, temp_image2)
+
+    return temp_after
+
+
+def save_pdf_from_video(input, output, write_output, slice):
     start = time.time()
 
     # 비디오를 받아옴.
@@ -64,7 +86,6 @@ def save_pdf_from_video(input, slice):
 
     # final slide 저장하는 곳.
     final_slide_array = []
-    final_slide_array.append(prev_frame)
 
     # temp 비교를 위한 저장공간들
     # temp_origin_frame : 장면전환 후 첫 슬라이드(필기가 없는 . 흰화면)
@@ -79,7 +100,8 @@ def save_pdf_from_video(input, slice):
             temp_diff_list[i][j] = 1
 
     count = 0
-
+    slide_index = 0
+    current_slide_index = 0
     while 1:
         ret, frame = capture.read()
         if frame is not None:
@@ -123,15 +145,26 @@ def save_pdf_from_video(input, slice):
             # 아예 다른 슬라이드 발견(슬라이드전환)
             if different_slice >= 6:
                 exist = False
-                for image in origin_slide_array:
-                    if detect_difference(image, frame) < 50:
+                index = 0
+                for i in range(len(origin_slide_array)):
+                    if detect_difference(origin_slide_array[i], frame) < 50:
                         exist = True
+                        index = i
+                if not exist:
+                    for i in range(len(final_slide_array)):
+                        if detect_difference(final_slide_array[i][0], frame) < 50:
+                            exist = True
+                            index = final_slide_array[i][1]
                 frame_array.append(prev_frame)
-                final_slide_array.append(prev_frame)
+                final_slide_array.append([prev_frame, current_slide_index])
                 temp_origin_frame = frame
                 prev_frame = frame
                 if not exist:
                     origin_slide_array.append(frame)
+                    slide_index += 1
+                    current_slide_index = slide_index
+                else:
+                    current_slide_index = index
                 continue
             # 인접한 곳에서 필기가 되었는가 ? 떨어진 곳에 필기를 했는지 detect.
             # 문제점3 : 떨어진 곳에서 필기를 했으나 같은 필기의 내용인 경우.
@@ -156,19 +189,31 @@ def save_pdf_from_video(input, slice):
         else:
             # 맨 끝 프레임.
             frame_array.append(prev_frame)
-            final_slide_array.append(prev_frame)
+            final_slide_array.append([prev_frame, current_slide_index])
             break
 
     del frame_array[0]
-    save_pdf(frame_array, "video/result_pdf.pdf")
+    delete_index = []
+    for i in range(len(frame_array)):
+        for j in range(len(frame_array)):
+            if i < j and detect_difference(frame_array[i], frame_array[j]) < 50:
+                delete_index.append(j)
+    for i in sorted(set(delete_index), reverse=True):
+        del frame_array[i]
+    save_pdf(frame_array, output)
     print(len(frame_array))
 
-    final_slide_array.pop(0)
-    if len(origin_slide_array) == len(final_slide_array):
-        temp_array = []
-        for i in range(len(origin_slide_array)):
-            temp_array.append(visualize_difference(origin_slide_array[i], final_slide_array[i]))
-        save_pdf(temp_array, "video/detect_write_result.pdf")
+    temp_array = []
+    delete_index = []
+    for i in range(len(final_slide_array)):
+        for j in range(len(final_slide_array)):
+            if i < j and detect_difference(final_slide_array[i][0], final_slide_array[j][0]) < 50:
+                delete_index.append(j)
+    for i in sorted(set(delete_index), reverse=True):
+        del final_slide_array[i]
+    for i in final_slide_array:
+        temp_array.append(get_write(origin_slide_array[i[1]], i[0], 16))
+    save_pdf(temp_array, write_output)
 
     print("time: ", end=" ")
     print(time.time() - start)
@@ -176,4 +221,4 @@ def save_pdf_from_video(input, slice):
 
 # Test part
 
-save_pdf_from_video("video/lecture.mp4", 4)
+save_pdf_from_video("video/1.mp4", "video/result1.pdf", "video/write_result1.pdf", 4)
