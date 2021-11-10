@@ -14,13 +14,18 @@
   <h1>Realtime communication with WebRTC</h1>
 
   <div id="videos">
-    <video id="localVideo" autoplay muted playsinline></video>
-    <video id="remoteVideo" autoplay playsinline></video>
+    <video id="localVideo" width="320" height="240" autoplay muted playsinline></video>
+    <video id="remoteVideo" width="320" height="240" autoplay playsinline></video>
+  </div>
+
+  <div>
+    <canvas id='output'></canvas>
   </div>
 
   <!-- This file is automatically added/served when running "node index.js". -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="https://docs.opencv.org/3.3.1/opencv.js"></script>
   <script src="js/main.js"></script>
 
 </body>

@@ -156,27 +156,11 @@ function createPeerConnection() {
     pc.onaddstream = handleRemoteStreamAdded;
     pc.onremovestream = handleRemoteStreamRemoved;
     console.log('Created RTCPeerConnnection');
-
-
   } catch (e) {
     console.log('Failed to create PeerConnection, exception: ' + e.message);
     alert('Cannot create RTCPeerConnection object.');
     return;
   }
-}
-
-const video = document.getElementById("video");
-const canvas = document.getElementById("output");
-
-let cap;
-let src;
-let dst;
-
-function process() {
-  cap.read(src);
-  cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
-  cv.imshow('output', dst);
-  setTimeout(process, 33);
 }
 
 function handleIceCandidate(event) {
@@ -190,13 +174,6 @@ function handleIceCandidate(event) {
     });
   } else {
     console.log('End of candidates.');
-    //remoteVideo.height = remoteVideo.videoHeight;
-    //remoteVideo.width = remoteVideo.videoWidth;
-    cap = new cv.VideoCapture('remoteVideo');
-    src = new cv.Mat(document.querySelector('#remoteVideo').height, document.querySelector('#remoteVideo').width, cv.CV_8UC4);
-    dst = new cv.Mat(document.querySelector('#remoteVideo').height, document.querySelector('#remoteVideo').width, cv.CV_8UC1);
-    setTimeout(process, 33);
-
   }
 }
 
@@ -256,11 +233,29 @@ function requestTurn(turnURL) {
   }
 }
 
+const video = document.getElementById("video");
+const canvas = document.getElementById("output");
+
+const cap = new cv.VideoCapture('remoteVideo');
+
+remoteVideo.height = remoteVideo.videoHeight;
+remoteVideo.width = remoteVideo.videoWidth;
+
+const src = new cv.Mat(remoteVideo.height, remoteVideo.width, cv.CV_8UC4);
+const dst = new cv.Mat(remoteVideo.height, remoteVideo.width, cv.CV_8UC1);
+
+function process() {
+  cap.read(src);
+  cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+  cv.imshow('output', dst);
+  setTimeout(process, 33);
+}
 
 function handleRemoteStreamAdded(event) {
   console.log('Remote stream added.');
   remoteStream = event.stream;
   remoteVideo.srcObject = remoteStream;
+  setTimeout(process, 33);
 }
 
 function handleRemoteStreamRemoved(event) {
