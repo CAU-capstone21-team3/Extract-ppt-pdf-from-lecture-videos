@@ -96,7 +96,7 @@ socket.on('message', function (message) {
 ////////////////////////////////////////////////////
 
 var localVideo = document.querySelector('#localVideo');
-var remoteVideo = document.querySelector('#remoteVideo');
+var $remoteVideo = document.querySelector('#remoteVideo');
 
 navigator.mediaDevices.getDisplayMedia({
   audio: false,
@@ -165,19 +165,160 @@ function createPeerConnection() {
   }
 }
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("output");
+//const $video = document.getElementById('video');
+const $canvas = document.getElementById('canvas');
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////// opencv python --> js ////////////////////////////////////////
+/////////////////////////process함수가 opencv 처리하는 함수입니다./////////////////////////////////////
+////////////////////////////// =process 안에서 처리해야합니다////////////////////////////////////////////
 let cap;
 let src;
 let dst;
 
+
+let frame_array = [];
+let origin_slide_array = [];
+let final_slide_array = [];
+
+let temp_diff_list = [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]];
+
+let prev_frame;
+
+// 선언부 new~ 지우면 복사가 안됩니다.
+let temp_origin_frame = new cv.Mat(document.querySelector('#remoteVideo').height, document.querySelector('#remoteVideo').width, cv.CV_8UC4);
+let temp_write_frame = new cv.Mat(document.querySelector('#remoteVideo').height, document.querySelector('#remoteVideo').width, cv.CV_8UC4);
+
+let write_frame;
+
+let first = 1;
+let count = 0;
+let width = 320;
+let height = 240;
+let layers;
+
+let slice = 4;
+let total_count = 0;
+
 function process() {
   cap.read(src);
-  cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
-  cv.imshow('output', dst);
+
+  if (first == 1) {
+    //첫번째 프레임
+    first = 0;
+
+    let temp_push_frame = new cv.Mat(document.querySelector('#remoteVideo').height, document.querySelector('#remoteVideo').width, cv.CV_8UC4);
+    temp_push_frame = src.clone();
+    origin_slide_array.push(temp_push_frame);
+    frame_array.push(temp_push_frame);
+    //cv.imshow('canvas', temp_push_frame);
+
+
+    /*저장 (정식)
+    const context = $canvas.getContext('2d');
+    context.drawImage($remoteVideo, 0, 0, width, height);
+    let imageData = $canvas.toDataURL('image/png');
+
+    const $images = document.querySelector('#images');
+    const $img = document.createElement('img');
+    const $a = document.createElement('a');
+    const fileName = 'result_${new Date().getTime()}';
+
+    $img.src = imageData;
+    $a.href = imageData;
+    $a.download = fileName;
+    $a.appendChild($img);
+
+    $images.insertBefore($a, $images.childNodes[0]);
+    */
+
+    //순간 저장.
+    /*let image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    var x = window.open("Popup", "height=1,weight=1,status=no,toolbar=no,menubar=no,location=no, top =100000, left =100000");
+    x.location.href = image;*/
+    temp_origin_frame = src.clone();
+    temp_write_frame = src.clone();
+    console.log(src);
+    console.log(temp_write_frame);
+
+  } else {
+    if (count < 100) {
+      count += 1;
+      //do nothing.
+    } else {
+      count = 0;
+      total_count += 1;
+      ////
+      const context = $canvas.getContext('2d');
+      context.drawImage($remoteVideo, 0, 0, width, height);
+      let imageData = $canvas.toDataURL('image/png');
+
+      const $images = document.querySelector('#images');
+      const $img = document.createElement('img');
+      const $a = document.createElement('a');
+      const fileName = 'result_' + total_count + '.png';
+
+      $img.src = imageData;
+      $a.href = imageData;
+      $a.download = fileName;
+      $a.appendChild($img);
+
+      $images.insertBefore($a, $images.childNodes[0]);
+      //
+      let diff_list = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+      let slice_width = width / 4;
+      let slice_height = height / 4;
+
+      let different_slide = 0;
+
+      for (let i = 0; i < slice; i++) {
+        for (let j = 0; j < slice; j++) {
+          //시작점, 끝점 기록
+          let start_width = slice_width * i;
+          let start_height = slice_height * j;
+          let end_width = slice_width * (i + 1);
+          let end_height = slice_height * (j + 1);
+
+          let temp_image1 = []
+          let temp_image2 = [];
+          /*
+                    //이미지 자르기.
+                    for (let k = 0; k < height; k++) {
+                      let one_row = temp_origin_frame[k].clone();
+                      let slice_one_row = one_row.slice(start_width, end_width);
+                      temp_image1.push(slice_one_row);
+                    }
+          
+                    //이미지 자르기2.
+                    for (let k = 0; k < height; k++) {
+                      let one_row = frame[k].clone();
+                      console.log(one_row);
+                      let slice_one_row = one_row.slice(start_width, end_width);
+                      temp_image2.push(slice_one_row);
+          
+                    }
+          */
+
+        }
+      }
+
+
+    }
+
+  }
+
+
+  //cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+  //cv.imshow('canvas', dst);
   setTimeout(process, 33);
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////// opencv python --> js ////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function handleIceCandidate(event) {
   console.log('icecandidate event: ', event);
@@ -277,6 +418,7 @@ function handleRemoteHangup() {
   console.log('Session terminated.');
   stop();
   isInitiator = false;
+
 }
 
 function stop() {
