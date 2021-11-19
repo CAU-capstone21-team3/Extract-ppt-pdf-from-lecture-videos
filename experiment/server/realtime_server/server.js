@@ -3,6 +3,8 @@
 const cv = require('opencv4nodejs');
 const tensor = require('@tensorflow/tfjs');
 const fs = require('fs');
+const { jsPDF } = require('jspdf');
+
 
 var os = require('os');
 var nodeStatic = require('node-static');
@@ -20,12 +22,16 @@ server.listen(8000, '127.0.0.1', () => {
 })
 
 pre_app.get('', (request, response) => {
-  response.sendFile(__dirname + '/index.html');
+  response.sendFile(__dirname + '/stud_index.html');
 })
 
-pre_app.get('/teacher', (request, response) => {
-  response.sendFile(__dirname + '/index.html');
+pre_app.get('/prof', (request, response) => {
+  response.sendFile(__dirname + '/prof_index.html');
 })
+pre_app.get('/pdf', (request, response) => {
+  response.sendFile("C:\\waste\\a4.pdf");
+})
+//io.to(studentIp).sendFile("C:\\waste\\a4.pdf");
 
 
 io.sockets.on('connection', function (socket) {
@@ -43,7 +49,8 @@ io.sockets.on('connection', function (socket) {
     socket.broadcast.emit('message', message);
   });
 
-  socket.on('create or join', function (room) {
+  //prof 시작점 .
+  socket.on('create', function (room) {
     log('Received request to create or join room ' + room);
 
     var clientsInRoom = io.sockets.adapter.rooms[room];
@@ -65,7 +72,31 @@ io.sockets.on('connection', function (socket) {
       socket.emit('full', room);
     }
   });
+  let studentIp;
+  //student 시작점 . 
+  socket.on('join', function (room) {
+    studentIp = socket.request.connection.remoteAddress;
+    log('Received request to create or join room ' + room);
 
+    var clientsInRoom = io.sockets.adapter.rooms[room];
+    var numClients = clientsInRoom ? Object.keys(clientsInRoom.sockets).length : 0;
+    log('Room ' + room + ' now has ' + numClients + ' client(s)');
+
+    if (numClients === 0) {
+      socket.join(room);
+      log('Client ID ' + socket.id + ' created room ' + room);
+      socket.emit('created', room, socket.id);
+
+    } else if (numClients === 1) {
+      log('Client ID ' + socket.id + ' joined room ' + room);
+      io.sockets.in(room).emit('join', room);
+      socket.join(room);
+      socket.emit('joined', room, socket.id);
+      io.sockets.in(room).emit('ready');
+    } else { // max two clients
+      socket.emit('full', room);
+    }
+  });
   socket.on('ipaddr', function () {
     var ifaces = os.networkInterfaces();
     for (var dev in ifaces) {
@@ -82,6 +113,7 @@ io.sockets.on('connection', function (socket) {
   });
 
 
+  let first = 1;
   socket.on('pdf', (send_image) => {
     var dataUrlRegExp = /^data:image\/\w+;base64,/;
     var base64Data = send_image.replace(dataUrlRegExp, "");
@@ -89,11 +121,21 @@ io.sockets.on('connection', function (socket) {
     let decode = Buffer.from(base64Data, 'base64');
 
     //파일 안깨지는건 확인 하였음 ....
-    //fs.writeFileSync("C:\\waste_image\\result.png", decode);
+    fs.writeFileSync("C:\\waste\\result.png", decode);
 
     let temp_frame = new cv.Mat(240, 320, cv.CV_8UC4);
     temp_frame = cv.imdecode(decode);
     console.log(temp_frame);
+
+    if (first == 1) {
+      const doc = new jsPDF();
+      //doc.text("hello world", 10, 10);
+      doc.addImage(send_image, "JPEG", 15, 40, 180, 160);
+      //doc.output('datauri'); <- 주석 지우지 마세요. 지우면 오류 뜹니다
+
+      doc.save("C:\\waste\\a4.pdf");
+      first = 0;
+    }
     //잘 출력되는 거 확인 하였음 ...
     //cv.imshowWait('Image', temp_frame);
 

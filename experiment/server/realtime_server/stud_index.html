@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>STUDENT</title>
+  <link rel="stylesheet" href="/css/main.css" />
+
+</head>
+
+<body>
+
+  <h1>STUDENT</h1>
+
+  <div id="videos">
+    <video id="localVideo" width="320" height="240" autoplay muted playsinline></video>
+    <video id="remoteVideo" width="320" height="240" autoplay playsinline></video>
+  </div>
+
+  <!-- This file is automatically added/served when running "node index.js". -->
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="https://docs.opencv.org/3.3.1/opencv.js"></script>
+  <script src="js/student.js"></script>
+</body>
+
+</html>
