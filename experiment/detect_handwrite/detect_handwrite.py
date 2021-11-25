@@ -66,6 +66,14 @@ def save_pdf_from_video(input_path, output_path):
                         exist[1] = True
                         index[1] = frame_array[i][1]
 
+                prev_exist = False
+                for i in range(len(frame_array)):
+                    if detect_difference(frame_array[i][0], prev_frame) < 50:
+                        prev_exist = True
+
+                if not prev_exist:
+                    frame_array.append([prev_frame, current_frame_index])
+                
                 if not exist[0] and not exist[1]:
                     origin_frame_array.append(frame)
                     slide_num += 1
@@ -74,14 +82,6 @@ def save_pdf_from_video(input_path, output_path):
                     current_frame_index = index[0]
                 elif not exist[0] and exist[1]:
                     current_frame_index = index[1]
-
-                prev_exist = False
-                for i in range(len(frame_array)):
-                    if detect_difference(frame_array[i][0], prev_frame) < 50:
-                        prev_exist = True
-
-                if not prev_exist:
-                    frame_array.append([prev_frame, current_frame_index])
 
                 prev_frame = frame
                 continue
