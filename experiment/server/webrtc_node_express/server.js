@@ -1,8 +1,8 @@
 'use strict';
 
-const cv = require('opencv4nodejs');
-const image = cv.imread('./test.png');
-cv.imshowWait('Image', image);
+//const cv = require('opencv4nodejs');
+//const image = cv.imread('./test.png');
+//cv.imshowWait('Image', image);
 
 
 var os = require('os');
