@@ -33,9 +33,16 @@
 
   <div class="h2 mb-2 alert-warning text-center">STUDENT</div>
 
-  <div id="videos">
-    <video id="remoteVideo" width="1280" height="720" autoplay playsinline></video>
-    <video id="localVideo" width="320" height="240" autoplay muted playsinline></video>
+  <div class="container px-4">
+    <div class="row gx-5">
+      <div id="videos">
+        <div class="embed-responsive embed-responsive-16by9 text-center" >
+          <video id="remoteVideo" width="1280" height="720" autoplay playsinline></video>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9 text-center" >
+          <video id="localVideo" width="320" height="240" autoplay muted playsinline></video>
+      </div>
+    </div>
   </div>
 
   <!-- This file is automatically added/served when running "node index.js". -->
