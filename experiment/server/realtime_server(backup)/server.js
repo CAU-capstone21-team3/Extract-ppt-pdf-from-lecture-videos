@@ -1,6 +1,6 @@
 'use strict';
 
-//const cv = require('opencv4nodejs');
+const cv = require('opencv4nodejs');
 const tensor = require('@tensorflow/tfjs');
 const fs = require('fs');
 const { jsPDF } = require('jspdf');
