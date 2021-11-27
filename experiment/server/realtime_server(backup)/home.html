@@ -1,22 +1,38 @@
 <!DOCTYPE html>
 <html>
-
+ 
 <head>
+  <title>HOME</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Extract PDF from lecture video</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#" onclick="moveHome()">Home</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-  <title>home</title>
-  <link rel="stylesheet" href="/css/main.css" />
-
+  <script type="text/javascript">
+    function moveHome(){
+      location.href = "http://localhost:8000/";
+    }
+  </script>
 </head>
 
 <body>
-
-  <h1>home</h1>
-  <div>
-    <input type="button" value="Professor" onclick="moveProf()"/>
+  <div class="d-grid gap-2 col-4 mx-auto">
+    <button class="btn btn-primary" type="button" onclick="moveProf()">Professor</button>
+    <button class="btn btn-warning" type="button" onclick="moveStu()">Student</button>
   </div>
-  <div>
-    <input type="button" value="Student" onclick="moveStu()"/>
-  </div>
+  
   <script type="text/javascript">
     function moveProf(){
       location.href = "/prof";
