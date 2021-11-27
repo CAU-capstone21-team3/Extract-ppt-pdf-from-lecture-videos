@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
-
+ 
 <head>
-
-  <title>PROFESSOR</title>
+  <title>HOME</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
@@ -26,36 +25,25 @@
       location.href = "http://localhost:8000/";
     }
   </script>
-
 </head>
 
 <body>
-
-  <div class="h2 mb-2 alert-primary text-center">PROFESSOR</div>
-
-
-  <div id="videos">
-    <video id="remoteVideo" width="320" height="240" autoplay playsinline></video>
-    <video id="localVideo" width="1280" height="720" autoplay muted playsinline></video>
+  <div class="d-grid gap-2 col-4 mx-auto">
+    <button class="btn btn-primary" type="button" onclick="moveProf()">Professor</button>
+    <button class="btn btn-warning" type="button" onclick="moveStu()">Student</button>
   </div>
+  
+  <script type="text/javascript">
+    function moveProf(){
+      location.href = "/prof";
+    }
+    function moveStu(){
+      location.href = "/stu";
+    }
+  </script>
 
 
 
-  <div class="d-grid gap-2 col-10 d-md-block text-center">
-    <button type="button" class="btn btn-success" onclick="startRecord()">Recording Start</button>
-    <button type="button" class="btn btn-danger" onclick="stopRecord()">Recording Stop</button>
-  </div>
-
-  <div>
-    <canvas id='local_canvas' width="1280" height="720"></canvas>
-  </div>
-
-  <!-- This file is automatically added/served when running "node index.js". -->
-  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-  <script src="https://docs.opencv.org/3.3.1/opencv.js"></script>
-  <script src="js/prof.js"></script>
 </body>
 
 </html>

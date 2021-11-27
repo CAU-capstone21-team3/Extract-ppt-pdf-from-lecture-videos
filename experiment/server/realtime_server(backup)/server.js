@@ -22,6 +22,10 @@ server.listen(8000, '127.0.0.1', () => {
 })
 
 pre_app.get('', (request, response) => {
+  response.sendFile(__dirname + '/home.html');
+})
+
+pre_app.get('/stu', (request, response) => {
   response.sendFile(__dirname + '/stud_index.html');
 })
 
@@ -31,6 +35,7 @@ pre_app.get('/prof', (request, response) => {
 pre_app.get('/pdf', (request, response) => {
   response.sendFile("C:\\waste\\a4.pdf");
 })
+
 //io.to(studentIp).sendFile("C:\\waste\\a4.pdf");
 
 let socketId1;
