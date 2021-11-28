@@ -17,8 +17,8 @@ pre_app.use(express.static('./public'));
 var server = require('http').createServer(pre_app);
 var io = require('socket.io')(server);
 
-server.listen(8000, '127.0.0.1', () => {
-  console.log("listening on port 8000");
+server.listen(8080, '127.0.0.1', () => {
+  console.log("listening on port 8080");
 })
 
 pre_app.get('', (request, response) => {
