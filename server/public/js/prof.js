@@ -185,7 +185,7 @@ let height = 720;
 
 function process() {
   cap.read(src);
-  if (count < 100) {
+  if (count < 5) {
     count += 1;
     //do nothing.
   } else {
