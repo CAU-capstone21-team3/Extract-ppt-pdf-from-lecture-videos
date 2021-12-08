@@ -17,11 +17,15 @@ pre_app.use(express.static('./public'));
 var server = require('http').createServer(pre_app);
 var io = require('socket.io')(server);
 
-server.listen(8000, '127.0.0.1', () => {
-  console.log("listening on port 8000");
+server.listen(8080, '127.0.0.1', () => {
+  console.log("listening on port 8080");
 })
 
 pre_app.get('', (request, response) => {
+  response.sendFile(__dirname + '/home.html');
+})
+
+pre_app.get('/stu', (request, response) => {
   response.sendFile(__dirname + '/stud_index.html');
 })
 
@@ -31,6 +35,7 @@ pre_app.get('/prof', (request, response) => {
 pre_app.get('/pdf', (request, response) => {
   response.sendFile("C:\\waste\\a4.pdf");
 })
+
 //io.to(studentIp).sendFile("C:\\waste\\a4.pdf");
 
 let socketId1;
