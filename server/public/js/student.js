@@ -102,7 +102,7 @@ socket.on('message', function (message) {
 var $localVideo = document.querySelector('#localVideo');
 var $remoteVideo = document.querySelector('#remoteVideo');
 
-navigator.mediaDevices.getDisplayMedia({
+navigator.mediaDevices.getUserMedia({
   audio: false,
   video: true
 })

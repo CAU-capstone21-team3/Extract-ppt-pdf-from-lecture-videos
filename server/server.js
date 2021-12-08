@@ -17,11 +17,15 @@ pre_app.use(express.static('./public'));
 var server = require('http').createServer(pre_app);
 var io = require('socket.io')(server);
 
-server.listen(8000, '127.0.0.1', () => {
-  console.log("listening on port 8000");
+server.listen(8080, '127.0.0.1', () => {
+  console.log("listening on port 8080");
 })
 
 pre_app.get('', (request, response) => {
+  response.sendFile(__dirname + '/home.html');
+})
+
+pre_app.get('/stu', (request, response) => {
   response.sendFile(__dirname + '/stud_index.html');
 })
 
@@ -31,6 +35,7 @@ pre_app.get('/prof', (request, response) => {
 pre_app.get('/pdf', (request, response) => {
   response.sendFile("C:\\waste\\a4.pdf");
 })
+
 //io.to(studentIp).sendFile("C:\\waste\\a4.pdf");
 
 let socketId1;
@@ -119,12 +124,24 @@ io.sockets.on('connection', function (socket) {
   });
   ///////////////////////////////////////////////////////////////
   const doc = new jsPDF();
+  let prev_frame;
+  var prev_send_image;
+  let state = 1;
   ///////////////////////////////////////////////////////////////
   socket.on('recordStop', () => {
+
+    if (state == 1) {
+      doc.addImage(prev_send_image, "JPEG", 10, 30, 190, 106);
+    } else if (state == 2) {
+      doc.addImage(prev_send_image, "JPEG", 10, 160, 190, 106);
+    } else if (state == 3) {
+      doc.addPage();
+      doc.addImage(prev_send_image, "JPEG", 10, 30, 190, 106);
+    }
     console.log("저장 변환...!!!");
     doc.save("C:\\waste\\a4.pdf");
-    io.to(socketId1).emit('redirect', "http://localhost:8000/pdf");
-    io.to(socketId2).emit('redirect', "http://localhost:8000/pdf");
+    io.to(socketId1).emit('redirect', "http://localhost:8080/pdf");
+    io.to(socketId2).emit('redirect', "http://localhost:8080/pdf");
   })
   //////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////
@@ -133,8 +150,6 @@ io.sockets.on('connection', function (socket) {
   let origin_slide_array = [];
   let slide_num = 0;
   let current_frame_index = 0;
-
-  let prev_frame;
 
   let first = 1;
 
@@ -180,9 +195,6 @@ io.sockets.on('connection', function (socket) {
     }
     return different_slice;
   }
-
-  let state = 1;
-
   /////////////////////////////////////////////////////////
   socket.on('pdf', (send_image) => {
     var dataUrlRegExp = /^data:image\/\w+;base64,/;
@@ -203,11 +215,11 @@ io.sockets.on('connection', function (socket) {
       //doc.addImage(send_image, "JPEG", 15, 40, 180, 160);
       //doc.output('datauri'); <- 주석 지우지 마세요. 지우면 오류 뜹니다
       prev_frame = temp_frame;
+      prev_send_image = send_image;
       origin_slide_array.push(temp_frame);
       //doc.save("C:\\waste\\a4.pdf");
     } else {
-
-      if (detect_different_part(origin_slide_array[current_frame_index], temp_frame) >= 6) {
+      if (detect_different_part(origin_slide_array[current_frame_index], temp_frame) >= 4) {
         let exist = [false, false];
         let index = [0, 0];
 
@@ -241,20 +253,20 @@ io.sockets.on('connection', function (socket) {
           frame_array.push([prev_frame, current_frame_index]);
 
           if (state == 1) {
-            doc.addImage(send_image, "JPEG", 10, 30, 190, 106);
+            doc.addImage(prev_send_image, "JPEG", 10, 30, 190, 106);
             state = 2;
           } else if (state == 2) {
-            doc.addImage(send_image, "JPEG", 10, 160, 190, 106);
+            doc.addImage(prev_send_image, "JPEG", 10, 160, 190, 106);
             state = 3;
           } else if (state == 3) {
             doc.addPage();
-            doc.addImage(send_image, "JPEG", 10, 30, 190, 106);
+            doc.addImage(prev_send_image, "JPEG", 10, 30, 190, 106);
             state = 2;
           }
         }
 
         if (!exist[0] && !exist[1]) {
-          console.log("여기 들어오나요 ? slid _ num ++");
+          console.log(" slid _ num ++");
           console.log(slide_num);
 
           origin_slide_array.push(temp_frame);
@@ -265,10 +277,9 @@ io.sockets.on('connection', function (socket) {
         } else if (!exist[0] && exist[1]) {
           current_frame_index = index[1];
         }
-
-        prev_frame = temp_frame;
-
       }
+      prev_frame = temp_frame;
+      prev_send_image = send_image;
     }
     //잘 출력되는 거 확인 하였음 ...
     //cv.imshowWait('Image', temp_frame);
